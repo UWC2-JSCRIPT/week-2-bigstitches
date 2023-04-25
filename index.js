@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 
 const port = process.env.PORT || 5000;
 
-mongoose.connect('mongodb://localhost/jscript-330-week-2', {}).then(() => {
+// mongoose.connect('mongodb://localhost/jscript-330-week-2', {}).then(() => {
+mongoose.connect('mongodb://127.0.0.1/jscript-330-week-2', {}).then(() => {
   server.listen(port, () => {
    console.log(`Server is listening on http://localhost:${port}`);
   });
