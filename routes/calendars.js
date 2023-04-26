@@ -41,29 +41,49 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-// Create
+// Create, POST
 router.post("/", async (req, res, next) => {
   const calendar = req.body;
-  console.log(calendar);
-  // console.log(CalendarDAO.create(calendar));
-  if (!calendar || JSON.stringify(calendar) === '{}' ) {
-    // console.log(calendar);
+  if (!calendar || JSON.stringify(calendar) === '{}' || calendar.name === null || calendar.name === 'missing') {
     res.status(400).send('calendar is required please');
   } else {
-    //TODO: save widget here DONE
     const calendarAdded = await CalendarDAO.create(calendar);
     res.json(calendarAdded);
   }
 });
 
-// Update
+// Update, PUT
 router.put("/:id", async (req, res, next) => {
   const calID = req.params.id;
   const calendar = req.body;
-  const newCalendar = await CalendarDAO.update(calID, calendar);
-  console.log('... PUT UPDATE');
-  console.log(newCalendar);
-  res.json(newCalendar);
+  // check to see if ID matches any existing calendar ids
+  try {
+    const calendarMatch = await CalendarDAO.getById(req.params.id);
+    if (!calendarMatch || JSON.stringify(calendarMatch) === '{}' ) {
+      res.status(404).send(`Returned: ${calendarMatch}, Document:${req.params.id} doesn't exist`);
+    } else {
+      // check to see if calendar.name exists
+      if (calendar.name === null || calendar.name === 'missing' || calendar.name === '' || calendar.name === undefined) {
+        res.status(400).send('calendar name is required please');
+      } else {
+        // ID exists & req.body has some usable data - go for it!
+        // console.log(calendar);
+        const newCalendar = await CalendarDAO.update(calID, calendar);
+        // console.log(newCalendar);
+        res.json(newCalendar);
+      }
+    }
+  } catch(e) {
+    next(e);
+  }
+
+
+  // console.log(calendar); => [ { name: 'Drinks with Evan!'}, {date: '2002-12-09' } ]
+  // console.log(calID); => 644846a750ec6058d9056ed9
+
+  // console.log('... PUT UPDATE');
+  // console.log(newCalendar);
+
   //res.json(updatedWidget);
   /*
   if (!widget || JSON.stringify(widget) === '{}' ) {

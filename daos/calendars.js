@@ -23,9 +23,9 @@ module.exports.getById = async (id) => {
 };
 
 // for PUT
-module.exports.updateById = async (id, newData) => {
+module.exports.update = async (id, newData) => {
   try {
-    const calendar = await Calendars.findOneAndUpdate({ _id: id }, newData, { new: true }).lean();
+    const calendar = await Calendars.findOneAndUpdate({ _id: id }, newData, { new: true });
     return calendar;
   } catch (e) {
     return null;
