@@ -2,6 +2,15 @@ const Calendars = require('../models/calendars');
 
 module.exports = {};
 
+// for events
+/*
+module.exports.find = async (unique) => {
+  // console.log(`still an object: ${unique.$_id}`);
+  const calendar = await Calendars.findOne({unique}).lean();
+  return calendar;
+}
+*/
+
 // for GET, no id
 module.exports.getAll = () => {
   return Calendars.find();

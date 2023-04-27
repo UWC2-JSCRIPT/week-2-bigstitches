@@ -1,23 +1,83 @@
 const { Router } = require("express");
 
 const EventsDAO = require('../daos/events');
+const CalendarDAO = require('../daos/calendars');
 
 const router = Router();
 
+const regexFun = function (url) {
+    const regex = /\/calendars\/([A-Za-z0-9]+)\/events\//;
+    const match = regex.exec(url);
+    if (match) {
+        const calId = match[1];
+        return calId;
+    } else {
+        return null;
+    }
+}
+
 router.get("/", async (req, res, next) => {
-    console.log(req.params.router);
-    console.log('EVENTS GET');
-    console.log(req.body);
-  try {
-    const events = await EventsDAO.getAll();
-    res.status(200);
-    res.json(events);
-  } catch(e) {
-    next(e);
-  }
+    try {
+        // console.log(req.originalUrl);
+        const regex = /\/calendars\/([A-Za-z0-9]+)\/events\//;
+        const match = regex.exec(req.originalUrl);
+        if (match) {
+            const calId = match[1];
+            // console.log(calId); // Output: the CalendarId
+            try {
+                const calendar = await CalendarDAO.getById(calId);
+                if (!calendar || JSON.stringify(calendar) === '{}' ) {
+                  res.status(404).send(`Returned: ${calendar}, Document:${calId} doesn't exist`);
+                } else {
+                    const events = await EventsDAO.getAll(calId);
+                    res.json(events);
+                }
+              } catch(e) {
+                next(e);
+              }
+        }
+    } catch(e) {
+        next(e);
+    }
 });
 
 router.get("/:id", async (req, res, next) => {
+    // console.log(`GET ID: ${req.params.id}, REQ BODY: ${req.body}`);
+    // console.log('EVENTS GET');
+    // console.log(req.body);
+    /*
+            console.log(`HERE EVENTS get: ${events}`);
+        console.log(`HERE EVENTS ID FILTERED: ${events.calendarId}`);
+        const testHere = await CalendarDAO.find(events.calendarId);
+        
+        console.log(`TEST Calendar, ${testHere._id}`)
+        */
+
+    try {
+        const calendar = await CalendarDAO.getById(req.params.id);
+        const event = await EventsDAO.getById(req.params.id);
+        // console.log(`CALENDAR: ${calendar._id}, EVENT: ${event.calendarId}`);
+        // console.log(`CALENDAR: ${calendar.$_id}, EVENT: ${event[calendarId]}`);
+        if (!calendar || JSON.stringify(calendar) === '{}' ) {
+          res.status(404).send(`Returned: ${calendar}, Document:${req.params.id} doesn't exist`);
+        } else {
+            try {
+                // const event = await EventsDAO.getById(req.params.id);
+                // console.log('here, cal id:');
+                // console.log(event.calendarId);
+                if (!event || JSON.stringify(event) === '{}' ) {
+                  res.status(404).send(`Calendar:${req.params.id} doesn't have an event`);
+                } else {
+                  res.json(event);
+                }
+                } catch(e) {
+                    next(e);
+                }
+        }
+    } catch(e) {
+        next(e);
+    }
+   /*   
   try {
     const event = await EventsDAO.getById(req.params.id);
     if (!event || JSON.stringify(event) === '{}' ) {
@@ -28,6 +88,7 @@ router.get("/:id", async (req, res, next) => {
   } catch(e) {
     next(e);
   }
+  */
 });
 
 router.delete("/:id", async (req, res, next) => {
@@ -46,11 +107,19 @@ router.delete("/:id", async (req, res, next) => {
 // Create, POST
 router.post("/", async (req, res, next) => {
   const event = req.body;
-  if (!event || JSON.stringify(event) === '{}' || event.name === null || event.name === 'missing') {
-    res.status(400).send('event is required please');
+  const url = req.originalUrl;
+  const calId = regexFun(url);
+  if (calId!=null){
+    if (!event || JSON.stringify(event) === '{}' || event.name === null || event.name === 'missing') {
+        res.status(400).send('event is required please');
+      } else {
+        const calendarAdded = await EventsDAO.create(calId, event);
+        // const localID = mongoose.Types.ObjectId;
+        // console.log(`HERE EVENTS created: ${calendarAdded._id.toHexString()}`);
+        res.json(calendarAdded);
+      }
   } else {
-    const calendarAdded = await EventsDAO.create(event);
-    res.json(calendarAdded);
+    res.status(400).send('event is required please');
   }
 });
 
