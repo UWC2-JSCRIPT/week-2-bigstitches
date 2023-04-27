@@ -1,11 +1,18 @@
 const Events = require('../models/events');
 
 module.exports = {};
-  
+
+// for GET, no id
+module.exports.getAll = () => {
+  return Events.find();
+}
+
+// for POST with name
 module.exports.create = async (name) => {
-  return await EventCounts.create({ name });
+  return await Events.create(name);
 };
 
+// for GET with ID
 module.exports.getById = async (id) => {
   try {
     const event = await Events.findOne({ _id: id }).lean();
@@ -15,9 +22,21 @@ module.exports.getById = async (id) => {
   }
 };
 
-module.exports.updateById = async (id, newData) => {
+// for PUT
+module.exports.update = async (id, newData) => {
   try {
-    const calendar = await Events.findOneAndUpdate({ _id: id }, newData, { new: true }).lean();
+    const event = await Events.findOneAndUpdate({ _id: id }, newData, { new: true });
+    return event;
+  } catch (e) {
+    return null;
+  }
+};
+
+// for DELETE
+module.exports.remove = async (id) => {
+  try {
+    const event = await Events.deleteOne({ _id: id });
+    // returns the deleted doc
     return event;
   } catch (e) {
     return null;

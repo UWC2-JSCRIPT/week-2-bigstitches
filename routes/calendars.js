@@ -5,7 +5,6 @@ const CalendarDAO = require('../daos/calendars');
 const router = Router();
 
 router.get("/", async (req, res, next) => {
-  // console.log('here1');
   try {
     const calendars = await CalendarDAO.getAll();
     res.status(200);
@@ -76,24 +75,6 @@ router.put("/:id", async (req, res, next) => {
   } catch(e) {
     next(e);
   }
-
-
-  // console.log(calendar); => [ { name: 'Drinks with Evan!'}, {date: '2002-12-09' } ]
-  // console.log(calID); => 644846a750ec6058d9056ed9
-
-  // console.log('... PUT UPDATE');
-  // console.log(newCalendar);
-
-  //res.json(updatedWidget);
-  /*
-  if (!widget || JSON.stringify(widget) === '{}' ) {
-    res.status(400).send('widget is required now"');
-  } else {
-    //TODO: update widget here ATTEMPT
-    const updatedWidget = await WidgetDAO.update(widgetId, widget);
-    res.json(updatedWidget);
-  }
-  */
 });
 
 
