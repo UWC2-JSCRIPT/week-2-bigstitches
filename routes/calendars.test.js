@@ -50,7 +50,7 @@ describe("/calendars", () => {
 
   describe("POST /id", () => {    
     it("should return 400 if no name provided", async () => {
-      const res = await request(server).post("/calendars").send({ nme: 'missing' });
+      const res = await request(server).post("/calendars").send({ name: 'missing' });
       expect(res.statusCode).toEqual(400);
       expect(await Calendars.countDocuments()).toEqual(calendarValues.length);
     });
